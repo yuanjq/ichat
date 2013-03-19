@@ -1,2 +1,2 @@
 SUBDIRS = src \
-		  res
+		  resources
