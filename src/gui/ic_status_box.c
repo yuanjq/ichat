@@ -20,14 +20,16 @@ enum{
 };
 
 static int ic_status_box_signals[IC_STATUS_BOX_SIGNAL_N] = {0};
-static const gchar *status[] = {"在线", "Q我吧", "隐身", 
-								"忙碌", "离开", "离线"};
+static const gchar *status[] = {"在线", "Q我吧", "离开", "忙碌", 
+                                "隐身", "离线", "静音"};
+                                   
 static const gchar *files[] = { RESDIR"images/status/online.png",
-				RESDIR"images/status/callme.png",
-				RESDIR"images/status/hidden.png" ,
-				RESDIR"images/status/busy.png",
-				RESDIR"images/status/away.png",
-				RESDIR"images/status/offline.png"};
+                                RESDIR"images/status/callme.png",
+                                RESDIR"images/status/away.png" ,
+                                RESDIR"images/status/busy.png",
+                                RESDIR"images/status/hidden.png" ,
+                                RESDIR"images/status/offline.png",
+                                RESDIR"images/status/silent.png"};
 
 static void ic_status_box_class_init(IcStatusBoxClass *class);
 static void ic_status_box_init(IcStatusBox *status_box);
@@ -62,10 +64,10 @@ static void ic_status_box_init(IcStatusBox *self)
 
 	GtkWidget *image;
 	GtkWidget *menu_item;
-	gint i;
 	
 	priv->popup_menu = gtk_menu_new ();
-	for(i=0; i<6; i++)
+
+	for(gint i=0; i<5; i++)
 	{
 		menu_item = gtk_image_menu_item_new_with_label (status[i]);
 		gint *position = (gint *)g_malloc(sizeof(gint));
@@ -93,6 +95,34 @@ GtkWidget *ic_status_box_new()
 	return g_object_new(IC_TYPE_STATUS_BOX, NULL);
 }
 
+GtkWidget *ic_status_box_new_full()
+{
+    GtkWidget *object = ic_status_box_new();
+
+    IcStatusBoxPriv *priv = G_TYPE_INSTANCE_GET_PRIVATE(object,
+                                                        IC_TYPE_STATUS_BOX,
+                                                        IcStatusBoxPriv);
+	GtkWidget *menu_item;
+
+    for(gint i=5; i<7; i++)
+    {
+        menu_item = gtk_image_menu_item_new_with_label (status[i]);
+        gint *position = (gint *)g_malloc(sizeof(gint));
+        *position = i;
+        g_object_set_data (G_OBJECT(menu_item), "position", (gpointer)position);
+
+        GtkImage *image = gtk_image_new_from_file (files[i]);
+        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), image);
+        gtk_image_menu_item_set_always_show_image (GTK_IMAGE_MENU_ITEM(menu_item), TRUE);
+        gtk_menu_shell_append (GTK_MENU_SHELL(priv->popup_menu), menu_item);
+        
+        g_signal_connect(G_OBJECT(menu_item), "activate",
+                         G_CALLBACK(ic_menu_item_activate), object);
+        gtk_widget_show(menu_item);
+    }
+
+    return object;
+}
 
 static void ic_status_box_popup(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
@@ -123,10 +153,8 @@ static gboolean ic_status_box_draw(GtkWidget *widget, cairo_t *cr, gpointer data
 	                                                   IC_TYPE_STATUS_BOX,
 	                                                   IcStatusBoxPriv);
 	cr = gdk_cairo_create(gtk_widget_get_window(widget));
-	GdkPixbuf *arrow = gdk_pixbuf_new_from_file_at_scale(RESDIR"images/status/downarrow.png", 
-	                                                     10, 7, TRUE, NULL);	
-	GdkPixbuf *status = gdk_pixbuf_new_from_file_at_scale(files[priv->status], 
-	                                                      12, 12, TRUE, NULL);
+	GdkPixbuf *arrow = gdk_pixbuf_new_from_file_at_scale(RESDIR"images/status/downarrow.png", 10, 7, TRUE, NULL);	
+	GdkPixbuf *status = gdk_pixbuf_new_from_file_at_scale(files[priv->status], 12, 12, TRUE, NULL);
 	
 	gint arrow_w, status_w, status_h;
 	GtkAllocation alloc;
@@ -164,6 +192,7 @@ static void ic_menu_item_activate(GtkWidget *widget, gpointer data)
 	gint *position = (gint *)g_object_get_data (G_OBJECT(widget), "position");
 	priv->status = *position;
 	g_signal_emit (data, ic_status_box_signals[IC_STATUS_CHANGED_SIGNAL], 0);
+    ic_status_box_draw(GTK_WIDGET(data), NULL, NULL);
 }
 
 gint ic_status_box_get_status(IcStatusBox *self)

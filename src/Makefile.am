@@ -1,6 +1,5 @@
 SUBDIRS =  \
-	common	\
+	libwebqq \
+	gui	\
 	tools \
-	gui		\
-	libwebqq	\
-	client	
+	client 

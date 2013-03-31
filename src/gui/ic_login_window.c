@@ -5,10 +5,12 @@
 #include "ic_client_context.h"
 #include "ic_status_box.h"
 #include "ic_data_type.h"
+#include "type.h"
 
 static GtkWidget *login_window;
 static GtkWidget *user_entry, *pwd_entry;
-static GtkWidget *statusCombo;
+static gint login_status = IC_STATUS_ONLINE;
+
 static void login_button_clicked(GtkWidget *widget, gpointer data);
 static gboolean mouse_button_press_event (GtkWidget* widget, 
                                           GdkEventButton * event, 
@@ -23,6 +25,7 @@ GtkWidget *ic_login_window_new() {
 	GtkWidget *frame1;
 	GtkWidget *image1, *image2;
 	GtkWidget *pwdCheckBox;
+    GtkWidget *statusCombo;
 	GtkWidget *hButtonBox1, *hButtonBox2;
 
 	GdkScreen *screen;
@@ -53,6 +56,7 @@ GtkWidget *ic_login_window_new() {
 
 	image1 = gtk_image_new_from_file(RESDIR"images/ichat.png");
 	image2 = gtk_image_new_from_file(RESDIR"images/head.png");
+
 	frame1 = gtk_frame_new(NULL);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame1), GTK_SHADOW_IN);
 	gtk_widget_set_size_request(frame1, 80, 80);
@@ -62,11 +66,11 @@ GtkWidget *ic_login_window_new() {
 	
 	user_label = gtk_label_new("用户名:");
 	user_entry = gtk_entry_new();
-	gtk_entry_set_text(GTK_ENTRY(user_entry), "nixingfeng");
+    gtk_entry_set_max_length(GTK_ENTRY(user_entry), 50);
 	
 	pwd_label = gtk_label_new("密  码:");
 	pwd_entry = gtk_entry_new();
-	gtk_entry_set_text(GTK_ENTRY(pwd_entry), "1234");
+    gtk_entry_set_max_length(GTK_ENTRY(pwd_entry), 50);
 	gtk_entry_set_visibility(GTK_ENTRY(pwd_entry), FALSE);
 
 	statusCombo = ic_status_box_new();
@@ -149,7 +153,46 @@ static void login_button_clicked(GtkWidget *widget, gpointer data) {
 	name = gtk_entry_get_text(GTK_ENTRY(user_entry));
 	pwd = gtk_entry_get_text(GTK_ENTRY(pwd_entry));
 
-	ic_user_login(name, pwd);
+	ic_user_login(name, pwd, login_status); 
+}
+
+void ic_login_window_get_verifycode(GtkWidget *widget, LwqqClient *lwqq_client)
+{
+    LwqqClient *lc = lwqq_client;
+    char vc_image[128];
+
+    g_snprintf(vc_image, sizeof(vc_image), "/tmp/lwqq_%s.jpeg", lc->username);
+    if (g_access(vc_image, F_OK)) {
+        g_warning("No vc image data or type!(%s, %d)" , __FILE__, __LINE__);
+        return;
+    }
+
+    GtkWidget *dialog = gtk_dialog_new_with_buttons(
+        "Information", GTK_WINDOW(widget), GTK_DIALOG_MODAL, GTK_STOCK_OK,
+        GTK_RESPONSE_OK, NULL);
+    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), vbox);
+
+    GtkWidget *img = gtk_image_new_from_file(vc_image);
+
+    gtk_box_pack_start(GTK_BOX(vbox), gtk_label_new("VerifyCode："), FALSE, FALSE, 20);
+    gtk_box_pack_start(GTK_BOX(vbox), img, FALSE, FALSE, 0);
+
+    GtkWidget *vc_entry = gtk_entry_new();
+    gtk_widget_set_size_request(vc_entry, 200, -1);
+    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), vc_entry, TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 10);
+
+    gtk_widget_set_size_request(dialog, 300, 220);
+    gtk_widget_show_all(dialog);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+
+    /* got the verify code */
+    lc->vc->str = g_strdup(gtk_entry_get_text(GTK_ENTRY(vc_entry)));
+    gtk_widget_destroy(dialog);
+
+    login_button_clicked(NULL, NULL);
 }
 
 void ic_login_window_dialog_show(GtkWidget *window, gint error_type) {
@@ -160,7 +203,7 @@ void ic_login_window_dialog_show(GtkWidget *window, gint error_type) {
         case ERROR_TYPE_CONN_TIMEOUT:
             strcpy(error_msg, "网络连接超时，请检查网络连接!"); 
             break;
-        case 2:
+        case ERROR_TYPE_INVALIDATE:
             strcpy(error_msg, "用户名或密码错误，请重新输入!");
             break;
         default:
@@ -200,3 +243,4 @@ static gboolean mouse_button_press_event (GtkWidget* widget, GdkEventButton * ev
 	}
 	return FALSE;
 }
+

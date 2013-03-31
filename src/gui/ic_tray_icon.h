@@ -24,7 +24,7 @@ struct _IcTrayIconClass
 };
 
 GType ic_tray_icon_get_type();
-IcTrayIcon *ic_tray_icon_new();
+GtkStatusIcon *ic_tray_icon_new();
 void ic_tray_icon_set_blinking(IcTrayIcon *tray_icon);
 
 #endif

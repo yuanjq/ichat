@@ -1,16 +1,16 @@
+noinst_LTLIBRARIES = libgui.la
+libgui_la_LIBADD = ../libwebqq/libwebqq.la
+
 AM_CFLAGS = \
 	-DRESDIR=\"$(pkgdatadir)/resources/\" \
-	-I../common \
+	-I../include \
 	-I../tools \
+	-I../libwebqq \
 	$(GTK3_CFLAGS) \
-	$(XML2_CFLAGS) 
+	-std=c99
 
 AM_LDFLAGS = \
-	$(GTK3_LIBS) \
-	$(XML2_LIBS) 
-
-noinst_LTLIBRARIES = libgui.la
-libgui_la_LIBADD = ../tools/libxml_parser.la
+	$(GTK3_LIBS) 
 
 libgui_la_SOURCES = ic_chat_manager.c 	\
 				ic_button.c				\

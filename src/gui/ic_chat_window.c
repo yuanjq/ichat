@@ -319,11 +319,11 @@ void ic_chatwindow_append_recvmesg(GtkWidget *widget, Message *mesg)
 	                                                           IC_TYPE_CHAT_WINDOW,
 	                                                           IcChatWindowPrivate);
 	GtkWidget *display_view = private->display_view;
-	FriendInfo *friend_info = ic_get_friendinfo_by_name(mesg->sender);
+	/*FriendInfo *friend_info = ic_get_friendinfo_by_name(mesg->sender);
 	
 	ic_chatwindow_textview_add_mesg(display_view, friend_info->nick_name, mesg->time, 
 	                                mesg->content, "blue_fg");
-
+    */
 }
 
 static void on_send_mesg(GtkWidget *widget)
@@ -339,7 +339,7 @@ static void on_send_mesg(GtkWidget *widget)
 	if(mesg == NULL || strcmp(mesg, "")==0)
 		return;
 
-	UserInfo *user_info = ic_get_user_info ();
+	/*UserInfo *user_info = ic_get_user_info ();
 	FriendInfo *friend_info = private->friend_info;
 	GtkWidget *display_view = private->display_view;
 
@@ -349,7 +349,7 @@ static void on_send_mesg(GtkWidget *widget)
 	ic_chatwindow_textview_clear (input_view);
 	ic_chatwindow_textview_add_mesg (display_view, user_info->nick_name,
 	                                 cur_time.tv_sec, mesg, "blue_fg");
-	
+    */	
 	g_free(mesg);
 }
 

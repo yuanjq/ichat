@@ -179,7 +179,7 @@ static void ic_tray_icon_stop_blinking(IcTrayIcon *tray_icon)
 	priv->blinking = FALSE;
 }
 
-IcTrayIcon *ic_tray_icon_new ()
+GtkStatusIcon *ic_tray_icon_new ()
 {
 	return g_object_new (IC_TYPE_TRAY_ICON, NULL);
 }

@@ -22,6 +22,7 @@ void ic_chat_entity_realize(gchar *user_name)
 		chat_entity_table = g_hash_table_new (g_str_hash, g_direct_equal);
 	}
 	
+#if 0
 	FriendInfo *friend_info = ic_get_friendinfo_by_name(user_name);
 	
 	if(!g_hash_table_contains (chat_entity_table, friend_info->friend_name))
@@ -38,6 +39,7 @@ void ic_chat_entity_realize(gchar *user_name)
 		g_hash_table_insert(chat_entity_table, friend_info->friend_name, 
 		                    (gpointer)chat_entity);
 	}
+#endif
 
 }
 
@@ -48,6 +50,7 @@ void ic_chat_entity_destroy(gchar *user_name)
 
 void ic_chat_manager_show_all()
 {
+#if 0
 	GList *iter = NULL;
 	for(iter = unread_mesg_list; iter; iter = iter->next)
 	{
@@ -64,4 +67,5 @@ void ic_chat_manager_show_all()
 		free(mesg);
 	}
 	g_list_free(unread_mesg_list);
+#endif
 }

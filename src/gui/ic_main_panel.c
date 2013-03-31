@@ -2,13 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <glib.h> 
+
 #include "ic_main_panel.h"
 #include "ic_data_type.h"
 #include "ic_chat_manager.h"
 #include "ic_text_field.h"
 #include "ic_status_box.h"
 #include "ic_titlebar.h"
+
+#include "queue.h"
 
 enum{
 	COL_PIXBUF=0,
@@ -17,8 +19,8 @@ enum{
     COLS_N
 };
 
-static GtkWidget *contact_list_new(GList *contactList);
-static GtkTreeModel *contact_tree_model_new(GList *contactList);
+static GtkWidget *ic_contact_list_new(LwqqClient *lc);
+static GtkTreeModel *ic_contact_tree_model_new(LwqqClient *lc);
 static gboolean ic_status_changed_event(GtkWidget *widget, gpointer data);
 static void ic_on_row_activated(GtkTreeView *view, GtkTreePath *path,
                          GtkTreeViewColumn *column, gpointer data);
@@ -34,7 +36,7 @@ static gboolean ic_status_changed_event(GtkWidget *widget, gpointer data) {
 	return TRUE;
 }
 
-static GtkTreeModel *contact_tree_model_new(GList *contactList) {
+static GtkTreeModel *ic_contact_tree_model_new(LwqqClient *lc) {
 	GtkTreeStore *contactTreeStore;
 	GtkTreeIter root, child;
 	GdkPixbuf *pixbuf;
@@ -43,21 +45,31 @@ static GtkTreeModel *contact_tree_model_new(GList *contactList) {
 	contactTreeStore = gtk_tree_store_new(COLS_N, GDK_TYPE_PIXBUF, 
 	                                      G_TYPE_STRING, G_TYPE_STRING);
 	pixbuf = gdk_pixbuf_new_from_file_at_scale(RESDIR"images/head.png", 40, 40, TRUE, NULL);
-	gtk_tree_store_append(contactTreeStore, &root, NULL);
-	gtk_tree_store_set(contactTreeStore, &root, COL_STRING, "我的好友", -1);
-	
-	for(iter=contactList; iter; iter=iter->next) {
-		FriendInfo *friend = (FriendInfo *)iter->data;
-		gtk_tree_store_append(contactTreeStore, &child, &root);
-		gtk_tree_store_set(contactTreeStore, &child, COL_PIXBUF, pixbuf, 
-		                   COL_STRING, friend->nick_name, COL_USERNAME, 
-		                   friend->friend_name, -1);
-	}
+
+    LwqqFriendCategory *category = NULL;
+    LIST_FOREACH(category, &lc->categories, entries)
+    {
+        gtk_tree_store_append(contactTreeStore, &root, NULL);
+        gtk_tree_store_set(contactTreeStore, &root, COL_STRING, category->name, -1);
+
+        LwqqBuddy *friend = NULL;
+        LIST_FOREACH(friend, &lc->friends, entries)
+        {
+            if(category->index == atoi(friend->cate_index))
+            {
+                gtk_tree_store_append(contactTreeStore, &child, &root);
+                gtk_tree_store_set(contactTreeStore, &child, COL_PIXBUF, pixbuf, 
+                                    COL_STRING, friend->nick, COL_USERNAME, 
+                                    friend->qqnumber, -1);
+            }
+        }
+        
+    }
 
 	return GTK_TREE_MODEL(contactTreeStore);
 }
 
-static GtkWidget *contact_list_new(GList *contactList) {
+static GtkWidget *ic_contact_list_new(LwqqClient *lc) {
 	GtkWidget* contactView;
 	GtkTreeModel *contactTreeModel;
 	GtkTreeViewColumn *column;
@@ -79,7 +91,7 @@ static GtkWidget *contact_list_new(GList *contactList) {
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_add_attribute(column, renderer, "text", COL_STRING);
 
-	contactTreeModel = contact_tree_model_new(contactList);
+	contactTreeModel = ic_contact_tree_model_new(lc);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(contactView), contactTreeModel);
 	g_object_unref(contactTreeModel);	
 	gtk_tree_view_expand_all(GTK_TREE_VIEW(contactView));
@@ -109,7 +121,7 @@ static void ic_on_row_activated(GtkTreeView *treeview, GtkTreePath *path,
 	}
 }
 
-GtkWidget *ic_main_panel_new(UserInfo *user) {
+GtkWidget *ic_main_panel_new(LwqqClient *lwqq_client) {
 	GtkWidget *mainWindow;
 	GtkWidget *title_bar;
 	GtkWidget *statusCombo;
@@ -158,20 +170,33 @@ GtkWidget *ic_main_panel_new(UserInfo *user) {
 	title_bar = ic_titlebar_new();
 	gtk_box_pack_start (GTK_BOX(vbox1), title_bar, FALSE, FALSE, 0);
 	
-	nickName = gtk_label_new(user->nick_name);
+	nickName = gtk_label_new(lwqq_client->myself->nick);
 	photoFrame = gtk_frame_new(NULL);
 	gtk_frame_set_shadow_type(GTK_FRAME(photoFrame), GTK_SHADOW_IN);
 	gtk_widget_set_size_request(photoFrame, 60, 60);
 
-	photoPixbuf = gdk_pixbuf_new_from_file_at_scale(RESDIR"images/head.png", 60, 60, TRUE, NULL);
+	//photoPixbuf = gdk_pixbuf_new_from_file_at_scale(RESDIR"images/head.png", 60, 60, TRUE, NULL);
+    printf("avatar:: %s\n", lwqq_client->myself->avatar);
+    
+    photoPixbuf = gdk_pixbuf_new_from_data(lwqq_client->myself->avatar, 
+                                           GDK_COLORSPACE_RGB,
+                                           FALSE, 8,
+                                           60, 60, 180, 
+                                           NULL, NULL);
+#if 0
+    GdkPixbufLoader *pixbuf_loader = gdk_pixbuf_loader_new();
+    gdk_pixbuf_loader_write(pixbuf_loader, lwqq_client->myself->avatar, strlen(lwqq_client->myself->avatar), NULL);
+    gdk_pixbuf_loader_close(pixbuf_loader, 0);
+    photoPixbuf = gdk_pixbuf_loader_get_pixbuf(pixbuf_loader);
+#endif
 	photo = gtk_image_new_from_pixbuf(photoPixbuf);
 	gtk_container_add(GTK_CONTAINER(photoFrame), photo);
 	statusCombo = ic_status_box_new();
-	g_signal_connect(G_OBJECT(statusCombo), "ic-status-changed", 
+	/*g_signal_connect(G_OBJECT(statusCombo), "ic-status-changed", 
 	                 G_CALLBACK(ic_status_changed_event), (gpointer)user);
-
+    */
 	signature = ic_text_field_new ();
-	ic_text_field_set_text(IC_TEXT_FIELD(signature), user->signature);
+	ic_text_field_set_text(IC_TEXT_FIELD(signature), lwqq_client->myself->long_nick);
 	gtk_widget_set_size_request(signature, 198, 30);
 	
 	gtk_box_pack_start(GTK_BOX(hbox1), statusCombo, FALSE, FALSE, 0);
@@ -194,10 +219,11 @@ GtkWidget *ic_main_panel_new(UserInfo *user) {
 	notebook = gtk_notebook_new();
 	image = gtk_image_new_from_file(RESDIR"images/contactTabButton1.png");
 	gtk_widget_set_size_request(image, 79, 25);	
-	GList *friendList = user->friend_list;	
 
-	contactView = contact_list_new(friendList);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), contactView, image);
+    GtkWidget *contact_scroll = gtk_scrolled_window_new(NULL, NULL);
+	contactView = ic_contact_list_new(lwqq_client);
+    gtk_container_add(GTK_CONTAINER(contact_scroll), contactView);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), contact_scroll, image);
 
 	image = gtk_image_new_from_file(RESDIR"images/groupTabButton1.png");
 	gtk_widget_set_size_request(image, 79, 25);
