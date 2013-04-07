@@ -19,8 +19,8 @@ libgui_la_SOURCES = ic_chat_manager.c 	\
 				ic_chat_manager.h		\
 				ic_chat_window.c		\
 				ic_chat_window.h		\
-				ic_chatwindow_titlebar.c\
-				ic_chatwindow_titlebar.h\
+				ic_window_titlebar.c\
+				ic_window_titlebar.h\
 				ic_client_context.c		\
 				ic_client_context.h		\
 				ic_input_toolbar.c		\

@@ -7,45 +7,41 @@
 #include <glib.h>
 #include <string.h>
 
-struct ChatEntity {
-	char user_name[20];
+typedef struct _ChatEntity {
+	//char user_name[20];
+    int qqnumber;
 	GtkWidget *chat_window;
-};
+}ChatEntity;
 
 GHashTable *chat_entity_table = NULL;
 GList *unread_mesg_list = NULL;
 
-void ic_chat_entity_realize(gchar *user_name)
+void ic_chat_entity_realize(gint qqnumber)
 {
 	if(chat_entity_table == NULL)
 	{
-		chat_entity_table = g_hash_table_new (g_str_hash, g_direct_equal);
+		chat_entity_table = g_hash_table_new (g_int_hash, g_int_equal);
 	}
-	
-#if 0
-	FriendInfo *friend_info = ic_get_friendinfo_by_name(user_name);
-	
-	if(!g_hash_table_contains (chat_entity_table, friend_info->friend_name))
-	{
-		struct ChatEntity *chat_entity = (struct ChatEntity *)
-			malloc(sizeof(struct ChatEntity));
-		
-		GtkWidget *chat_window = ic_chat_window_new();
-		ic_chat_window_set_friend_info(chat_window, friend_info);
-		ic_chat_window_show(chat_window);
-		
-		strcpy(chat_entity->user_name, friend_info->friend_name);
-		chat_entity->chat_window = chat_window;
-		g_hash_table_insert(chat_entity_table, friend_info->friend_name, 
-		                    (gpointer)chat_entity);
-	}
-#endif
 
+    //LwqqBuddy *friend = ic_get_friend_by_id(qqnumber); 
+    g_debug("qqnumber: %d\n", qqnumber);
+    if(!g_hash_table_contains(chat_entity_table, GINT_TO_POINTER(qqnumber)))
+    {
+        ChatEntity *entity = (ChatEntity *)malloc(sizeof(ChatEntity));
+
+        GtkWidget *chat_window = ic_chat_window_new();
+        //ic_chat_window_set_friend(chat_window, friend);
+        ic_chat_window_show(chat_window);
+
+        //strcpy(entity->usr_name, friend->qqnumber);
+        entity->chat_window = chat_window;
+        g_hash_table_insert(chat_entity_table, GINT_TO_POINTER(qqnumber), (gpointer)entity);
+    }
 }
 
-void ic_chat_entity_destroy(gchar *user_name)
+void ic_chat_entity_destroy(gchar *qqnumber)
 {
-	g_hash_table_remove(chat_entity_table, user_name);
+	g_hash_table_remove(chat_entity_table, qqnumber);
 }
 
 void ic_chat_manager_show_all()

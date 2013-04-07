@@ -45,11 +45,10 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
-libghttp_la_DEPENDENCIES =
-am_libghttp_la_OBJECTS = libghttp_la-ghttp.lo libghttp_la-http_hdrs.lo \
-	libghttp_la-http_resp.lo libghttp_la-http_uri.lo \
-	libghttp_la-http_date.lo libghttp_la-http_req.lo \
-	libghttp_la-http_trans.lo libghttp_la-http_base64.lo
+libghttp_la_LIBADD =
+am_libghttp_la_OBJECTS = ghttp.lo http_hdrs.lo http_resp.lo \
+	http_uri.lo http_date.lo http_req.lo http_trans.lo \
+	http_base64.lo
 libghttp_la_OBJECTS = $(am_libghttp_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -198,8 +197,6 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 noinst_LTLIBRARIES = libghttp.la
-libghttp_la_CPPFLAGS = -I./libghttp
-libghttp_la_LIBADD = 
 libghttp_la_SOURCES = ghttp.c http_base64.h \
 			http_hdrs.c http_resp.c\
 			http_uri.c ghttp_constants.h\
@@ -210,7 +207,6 @@ libghttp_la_SOURCES = ghttp.c http_base64.h \
 			http_base64.c http_global.h\
 			http_req.h http_trans.h
 
-AM_CFLAGS = 
 all: all-am
 
 .SUFFIXES:
@@ -263,14 +259,14 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libghttp_la-ghttp.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libghttp_la-http_base64.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libghttp_la-http_date.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libghttp_la-http_hdrs.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libghttp_la-http_req.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libghttp_la-http_resp.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libghttp_la-http_trans.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libghttp_la-http_uri.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ghttp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_base64.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_date.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_hdrs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_req.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_resp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_trans.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_uri.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -292,62 +288,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
-
-libghttp_la-ghttp.lo: ghttp.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libghttp_la-ghttp.lo -MD -MP -MF $(DEPDIR)/libghttp_la-ghttp.Tpo -c -o libghttp_la-ghttp.lo `test -f 'ghttp.c' || echo '$(srcdir)/'`ghttp.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libghttp_la-ghttp.Tpo $(DEPDIR)/libghttp_la-ghttp.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ghttp.c' object='libghttp_la-ghttp.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libghttp_la-ghttp.lo `test -f 'ghttp.c' || echo '$(srcdir)/'`ghttp.c
-
-libghttp_la-http_hdrs.lo: http_hdrs.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libghttp_la-http_hdrs.lo -MD -MP -MF $(DEPDIR)/libghttp_la-http_hdrs.Tpo -c -o libghttp_la-http_hdrs.lo `test -f 'http_hdrs.c' || echo '$(srcdir)/'`http_hdrs.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libghttp_la-http_hdrs.Tpo $(DEPDIR)/libghttp_la-http_hdrs.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='http_hdrs.c' object='libghttp_la-http_hdrs.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libghttp_la-http_hdrs.lo `test -f 'http_hdrs.c' || echo '$(srcdir)/'`http_hdrs.c
-
-libghttp_la-http_resp.lo: http_resp.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libghttp_la-http_resp.lo -MD -MP -MF $(DEPDIR)/libghttp_la-http_resp.Tpo -c -o libghttp_la-http_resp.lo `test -f 'http_resp.c' || echo '$(srcdir)/'`http_resp.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libghttp_la-http_resp.Tpo $(DEPDIR)/libghttp_la-http_resp.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='http_resp.c' object='libghttp_la-http_resp.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libghttp_la-http_resp.lo `test -f 'http_resp.c' || echo '$(srcdir)/'`http_resp.c
-
-libghttp_la-http_uri.lo: http_uri.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libghttp_la-http_uri.lo -MD -MP -MF $(DEPDIR)/libghttp_la-http_uri.Tpo -c -o libghttp_la-http_uri.lo `test -f 'http_uri.c' || echo '$(srcdir)/'`http_uri.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libghttp_la-http_uri.Tpo $(DEPDIR)/libghttp_la-http_uri.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='http_uri.c' object='libghttp_la-http_uri.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libghttp_la-http_uri.lo `test -f 'http_uri.c' || echo '$(srcdir)/'`http_uri.c
-
-libghttp_la-http_date.lo: http_date.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libghttp_la-http_date.lo -MD -MP -MF $(DEPDIR)/libghttp_la-http_date.Tpo -c -o libghttp_la-http_date.lo `test -f 'http_date.c' || echo '$(srcdir)/'`http_date.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libghttp_la-http_date.Tpo $(DEPDIR)/libghttp_la-http_date.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='http_date.c' object='libghttp_la-http_date.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libghttp_la-http_date.lo `test -f 'http_date.c' || echo '$(srcdir)/'`http_date.c
-
-libghttp_la-http_req.lo: http_req.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libghttp_la-http_req.lo -MD -MP -MF $(DEPDIR)/libghttp_la-http_req.Tpo -c -o libghttp_la-http_req.lo `test -f 'http_req.c' || echo '$(srcdir)/'`http_req.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libghttp_la-http_req.Tpo $(DEPDIR)/libghttp_la-http_req.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='http_req.c' object='libghttp_la-http_req.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libghttp_la-http_req.lo `test -f 'http_req.c' || echo '$(srcdir)/'`http_req.c
-
-libghttp_la-http_trans.lo: http_trans.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libghttp_la-http_trans.lo -MD -MP -MF $(DEPDIR)/libghttp_la-http_trans.Tpo -c -o libghttp_la-http_trans.lo `test -f 'http_trans.c' || echo '$(srcdir)/'`http_trans.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libghttp_la-http_trans.Tpo $(DEPDIR)/libghttp_la-http_trans.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='http_trans.c' object='libghttp_la-http_trans.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libghttp_la-http_trans.lo `test -f 'http_trans.c' || echo '$(srcdir)/'`http_trans.c
-
-libghttp_la-http_base64.lo: http_base64.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libghttp_la-http_base64.lo -MD -MP -MF $(DEPDIR)/libghttp_la-http_base64.Tpo -c -o libghttp_la-http_base64.lo `test -f 'http_base64.c' || echo '$(srcdir)/'`http_base64.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libghttp_la-http_base64.Tpo $(DEPDIR)/libghttp_la-http_base64.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='http_base64.c' object='libghttp_la-http_base64.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libghttp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libghttp_la-http_base64.lo `test -f 'http_base64.c' || echo '$(srcdir)/'`http_base64.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -22,7 +22,7 @@ enum{
 static GtkWidget *ic_contact_list_new(LwqqClient *lc);
 static GtkTreeModel *ic_contact_tree_model_new(LwqqClient *lc);
 static gboolean ic_status_changed_event(GtkWidget *widget, gpointer data);
-static void ic_on_row_activated(GtkTreeView *view, GtkTreePath *path,
+static void on_row_activated(GtkTreeView *view, GtkTreePath *path,
                          GtkTreeViewColumn *column, gpointer data);
 static gboolean on_mouse_press_event (GtkWidget* widget,
                 GdkEventButton * event, gpointer data);
@@ -44,7 +44,6 @@ static GtkTreeModel *ic_contact_tree_model_new(LwqqClient *lc) {
 
 	contactTreeStore = gtk_tree_store_new(COLS_N, GDK_TYPE_PIXBUF, 
 	                                      G_TYPE_STRING, G_TYPE_STRING);
-	pixbuf = gdk_pixbuf_new_from_file_at_scale(RESDIR"images/head.png", 40, 40, TRUE, NULL);
 
     LwqqFriendCategory *category = NULL;
     LIST_FOREACH(category, &lc->categories, entries)
@@ -58,6 +57,9 @@ static GtkTreeModel *ic_contact_tree_model_new(LwqqClient *lc) {
             if(category->index == atoi(friend->cate_index))
             {
                 gtk_tree_store_append(contactTreeStore, &child, &root);
+                GdkPixbufLoader *loader = gdk_pixbuf_loader_new();
+                gdk_pixbuf_loader_write(loader, friend->avatar, friend->avatar_len, NULL);
+                pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
                 gtk_tree_store_set(contactTreeStore, &child, COL_PIXBUF, pixbuf, 
                                     COL_STRING, friend->nick, COL_USERNAME, 
                                     friend->qqnumber, -1);
@@ -97,12 +99,12 @@ static GtkWidget *ic_contact_list_new(LwqqClient *lc) {
 	gtk_tree_view_expand_all(GTK_TREE_VIEW(contactView));
 
 	g_signal_connect(G_OBJECT(contactView), "row-activated", 
-	                 G_CALLBACK(ic_on_row_activated), NULL);
+	                 G_CALLBACK(on_row_activated), NULL);
 		
 	return contactView;
 }
 
-static void ic_on_row_activated(GtkTreeView *treeview, GtkTreePath *path,
+static void on_row_activated(GtkTreeView *treeview, GtkTreePath *path,
                          GtkTreeViewColumn *column, gpointer data)
 {
 	GtkTreeModel *model;
@@ -111,13 +113,13 @@ static void ic_on_row_activated(GtkTreeView *treeview, GtkTreePath *path,
 	model = gtk_tree_view_get_model(treeview);
 	if (gtk_tree_model_get_iter(model, &iter, path))
 	{
-		gchar *user_name = NULL;
-		gtk_tree_model_get(model, &iter, COL_USERNAME, &user_name, -1);
-		if(user_name != NULL)
+		gchar *qqnumber = NULL;
+		gtk_tree_model_get(model, &iter, COL_USERNAME, &qqnumber, -1);
+		if(qqnumber != NULL)
 		{
-			ic_chat_entity_realize(user_name);
+			ic_chat_entity_realize(atoi(qqnumber));
 		}
-		g_free(user_name);
+		g_free(qqnumber);
 	}
 }
 
@@ -175,22 +177,16 @@ GtkWidget *ic_main_panel_new(LwqqClient *lwqq_client) {
 	gtk_frame_set_shadow_type(GTK_FRAME(photoFrame), GTK_SHADOW_IN);
 	gtk_widget_set_size_request(photoFrame, 60, 60);
 
-	//photoPixbuf = gdk_pixbuf_new_from_file_at_scale(RESDIR"images/head.png", 60, 60, TRUE, NULL);
-    printf("avatar:: %s\n", lwqq_client->myself->avatar);
-    
-    photoPixbuf = gdk_pixbuf_new_from_data(lwqq_client->myself->avatar, 
-                                           GDK_COLORSPACE_RGB,
-                                           FALSE, 8,
-                                           60, 60, 180, 
-                                           NULL, NULL);
-#if 0
-    GdkPixbufLoader *pixbuf_loader = gdk_pixbuf_loader_new();
-    gdk_pixbuf_loader_write(pixbuf_loader, lwqq_client->myself->avatar, strlen(lwqq_client->myself->avatar), NULL);
-    gdk_pixbuf_loader_close(pixbuf_loader, 0);
-    photoPixbuf = gdk_pixbuf_loader_get_pixbuf(pixbuf_loader);
-#endif
-	photo = gtk_image_new_from_pixbuf(photoPixbuf);
+    GdkPixbufLoader *loader = gdk_pixbuf_loader_new();
+    gdk_pixbuf_loader_write(loader, lwqq_client->myself->avatar, lwqq_client->myself->avatar_len, NULL);
+    photoPixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
+    GdkPixbuf *myface = gdk_pixbuf_scale_simple(photoPixbuf, 40, 40, GDK_INTERP_BILINEAR);
+
+  	photo = gtk_image_new_from_pixbuf(myface);
 	gtk_container_add(GTK_CONTAINER(photoFrame), photo);
+    g_object_unref(photoPixbuf);
+    g_object_unref(myface);
+
 	statusCombo = ic_status_box_new();
 	/*g_signal_connect(G_OBJECT(statusCombo), "ic-status-changed", 
 	                 G_CALLBACK(ic_status_changed_event), (gpointer)user);

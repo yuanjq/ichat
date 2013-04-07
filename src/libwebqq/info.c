@@ -8,11 +8,13 @@
  * 
  */
 
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <utime.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <ghttp.h>
 #include <unistd.h>
 #include "info.h"
 #include "url.h"
@@ -21,7 +23,7 @@
 #include "smemory.h"
 #include "json.h"
 
-#define LWQQ_CACHE_DIR "/tmp/lwqq/"
+#define LWQQ_CACHE_DIR "/home/yjq/Desktop/faces/"
 
 static json_t *get_result_json_object(json_t *json);
 static void create_post_data(LwqqClient *lc, char *buf, int buflen);
@@ -250,7 +252,65 @@ static void parse_friends_child(LwqqClient *lc, json_t *json)
             }
         }
         buddy->cate_index = s_strdup(cate_index);
+        /* my code. */
+        my_get_avatar(lc, buddy, NULL);
     }
+}
+
+void my_get_avatar(LwqqClient *lc, LwqqBuddy *buddy, LwqqGroup *group)
+{
+    ghttp_request *request = NULL;
+    FILE *file;
+    struct stat st;
+
+    static int serv_id = 0;
+    if(!(group||buddy)) 
+        return ;
+    //there have avatar already do not repeat work;
+    LwqqErrorCode error;
+    int isgroup = group != NULL;
+    const char* qqnumber = (isgroup)?group->account:buddy->qqnumber;
+    const char* uin = (isgroup)?group->code:buddy->uin;
+
+    char url[512];
+    char host[32];
+    char path[32];
+    int type = (isgroup)?4:1;
+    //there are face 1 to face 10 server to accelerate speed.
+    snprintf(host,sizeof(host),"face%d.qun.qq.com",++serv_id);
+    serv_id %= 10;
+    snprintf(url, sizeof(url), "http://%s/cgi/svr/face/getface?cache=1&type=%d&fid=0&uin=%s&vfwebqq=%s", host, type, uin, lc->vfwebqq);
+
+    snprintf(path, sizeof(path), "/home/yjq/Desktop/faces/%s", qqnumber?qqnumber:uin);
+    file = fopen(path, "wb+");
+    if(file == NULL)
+    {
+        mkdir("/home/yjq/Desktop/faces/", 0777);
+        file = fopen(path, "wb+");
+    }
+    request = ghttp_request_new();
+    ghttp_set_uri(request, url);
+    ghttp_set_header(request, "Cookie", lwqq_get_cookies(lc));
+    ghttp_set_header(request, http_hdr_Connection, "close");
+    ghttp_prepare(request);
+    ghttp_process(request);
+    fwrite(ghttp_get_body(request), ghttp_get_body_len(request), 1, file);
+
+    fclose(file);
+    ghttp_request_destroy(request);
+
+    long size;
+
+    file = fopen(path, "rb");
+    fseek(file, 0, SEEK_END);
+    size = ftell(file);
+    buddy->avatar = (char *)g_malloc(size);
+
+    rewind(file);
+    fread(buddy->avatar, 1, size, file);
+    buddy->avatar_len = size;
+
+    fclose(file); 
 }
 
 void lwqq_info_get_avatar(LwqqClient* lc, LwqqBuddy* buddy,LwqqGroup* group)
@@ -260,7 +320,7 @@ void lwqq_info_get_avatar(LwqqClient* lc, LwqqBuddy* buddy,LwqqGroup* group)
         return ;
     //there have avatar already do not repeat work;
     LwqqErrorCode error;
-    int isgroup = group>0;
+    int isgroup = group != NULL;
     const char* qqnumber = (isgroup)?group->account:buddy->qqnumber;
     const char* uin = (isgroup)?group->code:buddy->uin;
 
@@ -287,8 +347,9 @@ void lwqq_info_get_avatar(LwqqClient* lc, LwqqBuddy* buddy,LwqqGroup* group)
     serv_id %= 10;
     snprintf(url, sizeof(url),
              "http://%s/cgi/svr/face/getface?cache=0&type=%d&fid=0&uin=%s&vfwebqq=%s", host,type,uin, lc->vfwebqq);
-
+    
     req = lwqq_http_create_default_request(url, &error);
+    
     req->set_header(req, "Referer", "http://web2.qq.com/");
     req->set_header(req, "Host", host);
 
@@ -300,7 +361,7 @@ void lwqq_info_get_avatar(LwqqClient* lc, LwqqBuddy* buddy,LwqqGroup* group)
         req->set_header(req,"If-Modified-Since",buf);
     }
     req->set_header(req, "Cookie", lwqq_get_cookies(lc));
-
+    
     int ret = req->do_request(req, 0, NULL);
 
     char** avatar = (isgroup)?&group->avatar:&buddy->avatar;
@@ -310,13 +371,13 @@ void lwqq_info_get_avatar(LwqqClient* lc, LwqqBuddy* buddy,LwqqGroup* group)
     size_t filesize=0;
     FILE* f;
 
-    if(qqnumber || uin) {
+    /*if(qqnumber || uin) {
         snprintf(path,sizeof(path),LWQQ_CACHE_DIR"%s",qqnumber?qqnumber:uin);
         struct stat st = {0};
         //we read it last modify date
         hasfile = !stat(path,&st);
         filesize = st.st_size;
-    }
+    }*/
 
     if((req->http_code!=200 && req->http_code!=304)){
         goto done;

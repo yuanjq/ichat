@@ -47,7 +47,7 @@ CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libgui_la_DEPENDENCIES = ../libwebqq/libwebqq.la
 am_libgui_la_OBJECTS = ic_chat_manager.lo ic_button.lo \
-	ic_chat_manager.lo ic_chat_window.lo ic_chatwindow_titlebar.lo \
+	ic_chat_manager.lo ic_chat_window.lo ic_window_titlebar.lo \
 	ic_client_context.lo ic_input_toolbar.lo ic_loading_panel.lo \
 	ic_login_window.lo ic_main_panel.lo ic_status_box.lo \
 	ic_text_field.lo ic_titlebar.lo ic_toolbar.lo ic_tray_icon.lo
@@ -218,8 +218,8 @@ libgui_la_SOURCES = ic_chat_manager.c 	\
 				ic_chat_manager.h		\
 				ic_chat_window.c		\
 				ic_chat_window.h		\
-				ic_chatwindow_titlebar.c\
-				ic_chatwindow_titlebar.h\
+				ic_window_titlebar.c\
+				ic_window_titlebar.h\
 				ic_client_context.c		\
 				ic_client_context.h		\
 				ic_input_toolbar.c		\
@@ -296,7 +296,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ic_button.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ic_chat_manager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ic_chat_window.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ic_chatwindow_titlebar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ic_client_context.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ic_input_toolbar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ic_loading_panel.Plo@am__quote@
@@ -307,6 +306,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ic_titlebar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ic_toolbar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ic_tray_icon.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ic_window_titlebar.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

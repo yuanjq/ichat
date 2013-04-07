@@ -26,9 +26,11 @@ struct _IcButtonClass {
 
 GType ic_button_get_type(void);
 GtkWidget *ic_button_new(void);
-void ic_button_set_label(GtkWidget *button, gchar *label);
-void ic_button_set_image(GtkWidget *button, GdkPixbuf *image);
+GtkWidget *ic_button_new_with_pixbuf(GdkPixbuf *pixbuf);
+void ic_button_set_image(GtkWidget *button, GdkPixbuf *pixbuf);
+void ic_button_set_normal_image(GtkWidget *button, GdkPixbuf *pixbuf);
 void ic_button_set_hovered_image(GtkWidget *button, GdkPixbuf *pixbuf);
 void ic_button_set_pressed_image(GtkWidget *button, GdkPixbuf *pixbuf);
+void ic_button_set_hovered_bg(GtkWidget *button, gboolean use_bg);
 
 #endif

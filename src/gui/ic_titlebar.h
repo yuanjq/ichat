@@ -9,17 +9,19 @@
 
 typedef struct _IcTitlebar 		IcTitlebar;
 typedef struct _IcTitlebarClass IcTitlebarClass;
-typedef struct _IcTitlebarPriv 	IcTitlebarPriv;
 
 struct _IcTitlebar
 {
 	GtkHBox parent;
+    GtkWidget *label;
+	GtkWidget *min_btn;
+	GtkWidget *max_btn;
+	GtkWidget *close_btn;
 };
 
 struct _IcTitlebarClass
 {
 	GtkHBoxClass parent_class;
-	void (*ic_titlebar_destroy)(GtkWidget *widget, gpointer data);
 };
 
 GType ic_titlebar_get_type();

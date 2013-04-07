@@ -7,6 +7,7 @@ struct _IcTextFieldPriv
 	GtkWidget *button;
 	GtkWidget *label;
 	GtkWidget *entry;
+    gchar text[100];
 };
 
 static void ic_text_field_show_all(GtkWidget *widget);
@@ -38,12 +39,14 @@ static void ic_text_field_init(IcTextField *textfield)
 	g_signal_connect_swapped(G_OBJECT(priv->button), "clicked", 
 	                 G_CALLBACK(on_button_clicked), textfield);
 
-	priv->label = gtk_label_new("set you signature...");
+	priv->label = gtk_label_new("Edit you signature here.");
+    gtk_label_set_max_width_chars(GTK_LABEL(priv->label), 10);
 	gtk_label_set_justify(GTK_LABEL(priv->label), GTK_JUSTIFY_LEFT);
 	gtk_container_add(GTK_CONTAINER(priv->button), priv->label);
 
 	priv->entry = gtk_entry_new ();
 	gtk_entry_set_max_length(GTK_ENTRY(priv->entry), 100);
+
 	g_signal_connect_swapped(G_OBJECT(priv->entry), "activate",
 	                         G_CALLBACK(on_entry_activate), textfield);
 	g_signal_connect_swapped(G_OBJECT(priv->entry), "focus-out-event", 
@@ -74,7 +77,11 @@ void ic_text_field_set_text(IcTextField *textfield, gchar *text)
 {
 	IcTextFieldPriv *priv = G_TYPE_INSTANCE_GET_PRIVATE(textfield, IC_TYPE_TEXT_FIELD,
 	                                                    IcTextFieldPriv);
-	gtk_label_set_text(GTK_LABEL(priv->label), text);
+    snprintf(priv->text, sizeof(priv->text), text);
+    
+    gchar str[40] = {0};
+    snprintf(str, sizeof(str), text);
+	gtk_label_set_text(GTK_LABEL(priv->label), str);
 }
 
 static void on_button_clicked(GtkWidget *widget)

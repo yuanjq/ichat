@@ -68,7 +68,8 @@ static gpointer ic_thread_lwqq_login(gpointer data)
         lwqq_info_get_friends_info(lwqq_client, NULL);
         lwqq_info_get_friend_detail_info(lwqq_client, lwqq_client->myself, NULL);
         lwqq_info_get_long_nick(lwqq_client, lwqq_client->myself);
-        lwqq_info_get_avatar(lwqq_client, lwqq_client->myself, NULL);
+        //lwqq_info_get_avatar(lwqq_client, lwqq_client->myself, NULL);
+        my_get_avatar(lwqq_client, lwqq_client->myself, NULL);
 
         is_user_login = TRUE;
 
@@ -138,7 +139,7 @@ static gboolean ic_client_timer(){
 	if(is_user_login || is_login_need_vc){
 		return FALSE;
 	}else{
-		if(loading_time>5){
+		if(loading_time>9){
 			loading_time=0;
 			gdk_threads_enter();
 			ic_loading_panel_destroy(loading_window);
@@ -156,23 +157,19 @@ GtkWidget *ic_client_get_main_panel()
 	return main_window;
 }
 
-#if 0
-FriendInfo *ic_get_friendinfo_by_name(gchar *user_name)
+LwqqBuddy *ic_get_friend_by_id(char *qqnumber)
 {
-	GList *friend_list = user_info->friend_list;
-	GList *iter = NULL;
+    LwqqBuddy *friend = NULL;
+    LIST_FOREACH(friend, &lwqq_client->friends, entries)
+    {
+        if(strcmp(friend->qqnumber, qqnumber) == 0)
+        {
+            return friend;
+        }
+    }
 
-	for(iter = friend_list; iter; iter=iter->next)
-	{
-		FriendInfo *friend_info = (FriendInfo *)iter->data;
-		if(strcmp(user_name, friend_info->friend_name) == 0)
-		{
-			return friend_info;
-		}
-	}
-	return NULL;
+    return NULL;
 }
-#endif
 
 GtkStatusIcon *ic_client_get_tray_icon()
 {

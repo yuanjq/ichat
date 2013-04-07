@@ -1,9 +1,10 @@
 #include "ic_chat_window.h"
-#include "ic_chatwindow_titlebar.h"
+#include "ic_window_titlebar.h"
 #include "ic_toolbar.h"
 #include "ic_input_toolbar.h"
 #include "ic_button.h"
 #include "ic_data_type.h"
+#include "type.h"
 #include <string.h>
 
 struct _IcChatWindowPrivate
@@ -13,7 +14,7 @@ struct _IcChatWindowPrivate
 	GtkWidget *input_toolbar;
 	GtkWidget *display_view;
 	GtkWidget *input_view;
-	FriendInfo *friend_info;
+	LwqqBuddy *friend;
 };
 
 static void ic_chat_window_class_init(IcChatWindowClass *class);
@@ -108,13 +109,14 @@ static void ic_chat_window_init(IcChatWindow *chat_window)
 	face_frame = gtk_frame_new(NULL);
 	pixbuf = gdk_pixbuf_new_from_file_at_scale(RESDIR"images/head.png", 60, 66, FALSE, NULL);
 	image = gtk_image_new_from_pixbuf(pixbuf);
+    g_object_unref(pixbuf);
 	gtk_container_add(GTK_CONTAINER(face_frame), image);
 	gtk_box_pack_end(GTK_BOX(v_box4), face_frame, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(h_box3), v_box4, FALSE, FALSE, 3);
 
 	gtk_box_pack_start(GTK_BOX(h_box3), v_box3, TRUE, TRUE, 0);
 
-	private->title_bar = ic_chatwindow_titlebar_new();
+	private->title_bar = ic_window_titlebar_new();
 	gtk_box_pack_start(GTK_BOX(v_box3), private->title_bar, FALSE, FALSE, 0);
 
 	private->tool_bar = ic_tool_bar_new();
@@ -187,7 +189,7 @@ static void ic_chat_window_init(IcChatWindow *chat_window)
 
 	g_signal_connect_swapped(G_OBJECT(send_button), "clicked", 
 	                 G_CALLBACK(on_send_mesg), (gpointer)chat_window);
-	g_signal_connect_swapped(G_OBJECT(private->title_bar), "ic-chatwindow-destroy", 
+	g_signal_connect_swapped(G_OBJECT(private->title_bar), "ic-titlebar-destroy", 
 	                 G_CALLBACK(on_chat_window_destroy), (gpointer)chat_window);
 	g_signal_connect(G_OBJECT(chat_window), "draw", 
 	                 G_CALLBACK(on_chatwindow_draw), NULL);
@@ -195,9 +197,10 @@ static void ic_chat_window_init(IcChatWindow *chat_window)
 	                 G_CALLBACK(on_mouse_press_event), NULL);
 }
 
-GtkWidget *ic_chat_window_new()
+GtkWidget *ic_chat_window_new(LwqqBuddy *friend)
 {
-	return GTK_WIDGET(g_object_new(IC_TYPE_CHAT_WINDOW, 0));
+    GtkWidget *widget = GTK_WIDGET(g_object_new(IC_TYPE_CHAT_WINDOW, 0));  
+    ic_chat_window_set_friend(widget, friend);
 }
 
 static gboolean on_chatwindow_draw(GtkWidget *chat_window, gpointer data)
@@ -270,16 +273,16 @@ static gboolean on_mouse_press_event (GtkWidget* widget,
 	return FALSE;
 }
 
-void ic_chat_window_set_friend_info(GtkWidget *chat_window, FriendInfo *friend_info)
+void ic_chat_window_set_friend(GtkWidget *chat_window, LwqqBuddy *friend)
 {
 	IcChatWindowPrivate *private = G_TYPE_INSTANCE_GET_PRIVATE(chat_window,
 	                                                        IC_TYPE_CHAT_WINDOW,
 	                                                        IcChatWindowPrivate);
-	private->friend_info = friend_info;
+	private->friend = friend;
 
 	GtkWidget *titlebar = private->title_bar;
-	ic_chatwindow_titlebar_set_label(titlebar, friend_info->nick_name);
-	ic_chatwindow_titlebar_set_signatrue(titlebar, friend_info->signature);
+	ic_window_titlebar_set_label(titlebar, friend->nick);
+	ic_window_titlebar_set_signatrue(titlebar, friend->long_nick);
 }
 
 void ic_chat_window_show(GtkWidget *widget)
@@ -292,8 +295,8 @@ static void on_chat_window_destroy(GtkWidget *chat_window)
 	IcChatWindowPrivate *private = G_TYPE_INSTANCE_GET_PRIVATE(chat_window,
 	                                                        IC_TYPE_CHAT_WINDOW,
 	                                                        IcChatWindowPrivate);
-	FriendInfo *friend_info = private->friend_info;
-	ic_chat_entity_destroy (friend_info->friend_name);
+	//FriendInfo *friend_info = private->friend_info;
+	//ic_chat_entity_destroy (friend_info->friend_name);
 	gtk_widget_destroy(chat_window);
 }
 
