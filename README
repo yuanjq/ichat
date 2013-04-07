@@ -1,1 +1,4 @@
-ichat is a chat software like QQ MSN Skype
+  ichat is a chat software based on lwqq's WebQQ protocol.
+lwqq is a great WebQQ  library, ichat is developed with gtk+-3.0, 
+it aimed at develop a beautiful and useful QQ chat client on 
+linux platform.
