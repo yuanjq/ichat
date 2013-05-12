@@ -67,9 +67,9 @@ static gpointer ic_thread_lwqq_login(gpointer data)
         lwqq_log(LOG_NOTICE, "Login successfully\n");
         lwqq_info_get_friends_info(lwqq_client, NULL);
         lwqq_info_get_friend_detail_info(lwqq_client, lwqq_client->myself, NULL);
+        lwqq_info_get_all_friend_qqnumbers(lwqq_client, NULL);
         lwqq_info_get_long_nick(lwqq_client, lwqq_client->myself);
-        //lwqq_info_get_avatar(lwqq_client, lwqq_client->myself, NULL);
-        my_get_avatar(lwqq_client, lwqq_client->myself, NULL);
+        lwqq_info_get_avatar(lwqq_client, lwqq_client->myself, NULL);
 
         is_user_login = TRUE;
 

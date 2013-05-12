@@ -6,7 +6,7 @@ AM_CFLAGS = -I./libghttp/ \
 			$(GLIB_CFLAGS)
 
 AM_LDFLAGS = -lev \
-			 -lghttp \
+			 -Llibghttp \
 			 $(GLIB_LIBS) 
 			  
 libwebqq_la_SOURCES=http.c \

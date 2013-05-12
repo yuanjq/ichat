@@ -30,6 +30,7 @@ static void create_post_data(LwqqClient *lc, char *buf, int buflen);
 static char *get_friend_qqnumber(LwqqClient *lc, const char *uin);
 char *get_group_qqnumber(LwqqClient *lc, const char *code);
 static int get_avatar_cb(LwqqHttpRequest *req, void* data);
+static char* hashO(const char* uin,const char* ptwebqq);
 
 /** 
  * Get the result object in a json object.
@@ -76,12 +77,46 @@ failed:
 static void create_post_data(LwqqClient *lc, char *buf, int buflen)
 {
     char *s;
-    char m[256];
-    snprintf(m, sizeof(m), "{\"h\":\"hello\",\"vfwebqq\":\"%s\"}",
-             lc->vfwebqq);
+    char m[512];
+    char* hash = hashO(lc->myself->uin,lc->cookies->ptwebqq);
+    snprintf(m, sizeof(m), "{\"h\":\"hello\",\"hash\":\"%s\",\"vfwebqq\":\"%s\"}",
+             hash,lc->vfwebqq);
+    s_free(hash);
     s = url_encode(m);
     snprintf(buf, buflen, "r=%s", s);
     s_free(s);
+
+}
+
+static char* hashO(const char* uin,const char* ptwebqq)
+{
+    char* a = s_malloc0(strlen(ptwebqq)+strlen("password error")+3);
+    const char* b = uin;
+    strcat(strcpy(a,ptwebqq),"password error");
+    size_t alen = strlen(a);
+    char* s = s_malloc0(2048);
+    int *j = malloc(sizeof(int)*alen);
+    for(;;){
+        if(strlen(s)<=alen){
+            if(strcat(s,b),strlen(s)==alen) break;
+        }else{
+            s[alen]='\0';
+            break;
+        }
+    }
+    int d;
+    for(d=0;d<strlen(s);d++){
+        j[d]=s[d]^a[d];
+    }
+    const char* ch = "0123456789ABCDEF";
+    s[0]=0;
+    for(d=0;d<alen;d++){
+        s[2*d]=ch[j[d]>>4&15];
+        s[2*d+1]=ch[j[d]&15];
+    }
+    s_free(a);
+    s_free(j);
+    return s;
 }
 
 /** 
@@ -253,11 +288,11 @@ static void parse_friends_child(LwqqClient *lc, json_t *json)
         }
         buddy->cate_index = s_strdup(cate_index);
         /* my code. */
-        my_get_avatar(lc, buddy, NULL);
+        lwqq_info_get_avatar(lc, buddy, NULL);
     }
 }
 
-void my_get_avatar(LwqqClient *lc, LwqqBuddy *buddy, LwqqGroup *group)
+void lwqq_info_get_avatar(LwqqClient *lc, LwqqBuddy *buddy, LwqqGroup *group)
 {
     ghttp_request *request = NULL;
     FILE *file;
@@ -313,7 +348,7 @@ void my_get_avatar(LwqqClient *lc, LwqqBuddy *buddy, LwqqGroup *group)
     fclose(file); 
 }
 
-void lwqq_info_get_avatar(LwqqClient* lc, LwqqBuddy* buddy,LwqqGroup* group)
+/*void lwqq_info_get_avatar(LwqqClient* lc, LwqqBuddy* buddy,LwqqGroup* group)
 {
     static int serv_id = 0;
     if(!(lc&&(group||buddy))) 
@@ -371,13 +406,13 @@ void lwqq_info_get_avatar(LwqqClient* lc, LwqqBuddy* buddy,LwqqGroup* group)
     size_t filesize=0;
     FILE* f;
 
-    /*if(qqnumber || uin) {
+    [>if(qqnumber || uin) {
         snprintf(path,sizeof(path),LWQQ_CACHE_DIR"%s",qqnumber?qqnumber:uin);
         struct stat st = {0};
         //we read it last modify date
         hasfile = !stat(path,&st);
         filesize = st.st_size;
-    }*/
+    }<]
 
     if((req->http_code!=200 && req->http_code!=304)){
         goto done;
@@ -432,7 +467,7 @@ done:
     }
     lwqq_http_request_free(req);
     return ;
-}
+}*/
 
 //static LwqqAsyncCallback get_avatar_cb(LwqqHttpRequest* req,LwqqBuddy* buddy,LwqqGroup* group)
 #if 0
@@ -581,7 +616,7 @@ json_error:
  */
 void lwqq_info_get_friends_info(LwqqClient *lc, LwqqErrorCode *err)
 {
-    char msg[256] ={0};
+    char msg[512] ={0};
     LwqqHttpRequest *req = NULL;  
     int ret;
     json_t *json = NULL, *json_tmp;

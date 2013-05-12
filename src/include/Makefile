@@ -86,7 +86,7 @@ AR = ar
 AUTOCONF = ${SHELL} /home/yjq/gtk/ichat/missing --run autoconf
 AUTOHEADER = ${SHELL} /home/yjq/gtk/ichat/missing --run autoheader
 AUTOMAKE = ${SHELL} /home/yjq/gtk/ichat/missing --run automake-1.11
-AWK = gawk
+AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
