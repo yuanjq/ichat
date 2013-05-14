@@ -117,9 +117,9 @@ static void on_row_activated(GtkTreeView *treeview, GtkTreePath *path,
 		gtk_tree_model_get(model, &iter, COL_USERNAME, &qqnumber, -1);
 		if(qqnumber != NULL)
 		{
-			ic_chat_entity_realize(atoi(qqnumber));
+			ic_chat_entity_realize(qqnumber);
+            g_free(qqnumber);
 		}
-		g_free(qqnumber);
 	}
 }
 

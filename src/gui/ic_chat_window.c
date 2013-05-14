@@ -197,10 +197,16 @@ static void ic_chat_window_init(IcChatWindow *chat_window)
 	                 G_CALLBACK(on_mouse_press_event), NULL);
 }
 
-GtkWidget *ic_chat_window_new(LwqqBuddy *friend)
+GtkWidget *ic_chat_window_new_with_info(LwqqBuddy *friend)
+{
+    GtkWidget *widget = ic_chat_window_new();
+    ic_chat_window_set_info(widget, friend);
+}
+
+GtkWidget *ic_chat_window_new()
 {
     GtkWidget *widget = GTK_WIDGET(g_object_new(IC_TYPE_CHAT_WINDOW, 0));  
-    ic_chat_window_set_friend(widget, friend);
+    return widget;
 }
 
 static gboolean on_chatwindow_draw(GtkWidget *chat_window, gpointer data)
@@ -273,7 +279,7 @@ static gboolean on_mouse_press_event (GtkWidget* widget,
 	return FALSE;
 }
 
-void ic_chat_window_set_friend(GtkWidget *chat_window, LwqqBuddy *friend)
+void ic_chat_window_set_info(GtkWidget *chat_window, LwqqBuddy *friend)
 {
 	IcChatWindowPrivate *private = G_TYPE_INSTANCE_GET_PRIVATE(chat_window,
 	                                                        IC_TYPE_CHAT_WINDOW,
@@ -295,9 +301,8 @@ static void on_chat_window_destroy(GtkWidget *chat_window)
 	IcChatWindowPrivate *private = G_TYPE_INSTANCE_GET_PRIVATE(chat_window,
 	                                                        IC_TYPE_CHAT_WINDOW,
 	                                                        IcChatWindowPrivate);
-	//FriendInfo *friend_info = private->friend_info;
-	//ic_chat_entity_destroy (friend_info->friend_name);
-	gtk_widget_destroy(chat_window);
+    LwqqBuddy *friend = private->friend;
+    ic_chat_entity_destroy (friend->qqnumber);
 }
 
 static void ic_chatwindow_textview_create_tags(GtkWidget *widget)

@@ -8,7 +8,7 @@
 #include <string.h>
 
 typedef struct _ChatEntity {
-    //gchar qqnumber[];
+    //gchar *qqnumber;
 	GtkWidget *chat_window;
 }ChatEntity;
 
@@ -22,26 +22,25 @@ void ic_chat_entity_realize(gchar *qqnumber)
 		chat_entity_table = g_hash_table_new (g_str_hash, g_str_equal);
 	}
 
-    //LwqqBuddy *friend = ic_get_friend_by_id(qqnumber); 
-    g_printf("!!!!!!!%d\n", qqnumber);
+    LwqqBuddy *friend = ic_get_friend_by_id(qqnumber); 
     if(!g_hash_table_contains(chat_entity_table, qqnumber))
     {
-        ChatEntity *entity = (ChatEntity *)malloc(sizeof(ChatEntity));
-
-        GtkWidget *chat_window = ic_chat_window_new();
-        //ic_chat_window_set_friend(chat_window, friend);
-        ic_chat_window_show(chat_window);
-        g_printf("----is ok???");
-
-        //strcpy(entity->usr_name, friend->qqnumber);
+        ChatEntity *entity = (ChatEntity *)g_malloc(sizeof(ChatEntity));
+        GtkWidget *chat_window = ic_chat_window_new_with_info(friend);
+        gchar *key = g_strdup(qqnumber);
         entity->chat_window = chat_window;
-        g_hash_table_insert(chat_entity_table, GINT_TO_POINTER(qqnumber), (gpointer)entity);
+        g_hash_table_insert(chat_entity_table, (gpointer)key, (gpointer)entity);
+        //ic_chat_window_show(chat_window);
     }
 }
 
 void ic_chat_entity_destroy(gchar *qqnumber)
 {
-	g_hash_table_remove(chat_entity_table, qqnumber);
+    ChatEntity *entity = (ChatEntity *)g_hash_table_lookup(chat_entity_table, (gconstpointer)qqnumber);
+    GtkWidget *widget = entity->chat_window;
+    gtk_widget_destroy(widget);
+    g_free(entity);
+	g_hash_table_remove(chat_entity_table, (gconstpointer)qqnumber);
 }
 
 void ic_chat_manager_show_all()

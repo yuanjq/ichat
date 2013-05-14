@@ -28,7 +28,8 @@ struct _IcChatWindowClass
 
 GType ic_chat_window_get_type();
 GtkWidget *ic_chat_window_new();
-void ic_chat_window_set_friend(GtkWidget *widget, LwqqBuddy *buddy);
+GtkWidget *ic_chat_window_new_with_info(LwqqBuddy *friend);
+void ic_chat_window_set_info(GtkWidget *widget, LwqqBuddy *buddy);
 void ic_chat_window_show(GtkWidget *widget);
 
 #endif

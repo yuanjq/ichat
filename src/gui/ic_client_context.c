@@ -157,7 +157,7 @@ GtkWidget *ic_client_get_main_panel()
 	return main_window;
 }
 
-LwqqBuddy *ic_get_friend_by_id(char *qqnumber)
+LwqqBuddy *ic_get_friend_by_id(gchar *qqnumber)
 {
     LwqqBuddy *friend = NULL;
     LIST_FOREACH(friend, &lwqq_client->friends, entries)
